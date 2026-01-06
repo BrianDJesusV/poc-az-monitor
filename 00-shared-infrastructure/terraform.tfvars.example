@@ -1,0 +1,26 @@
+# ========================
+# EJEMPLO DE CONFIGURACIÓN
+# ========================
+# Copia este archivo a terraform.tfvars y personaliza los valores
+# cp terraform.tfvars.example terraform.tfvars
+
+# Azure Region
+location = "eastus2"
+
+# Resource Naming
+resource_group_name           = "rg-azmon-poc-eastus2"
+log_analytics_workspace_name  = "law-azmon-poc-eastus2"
+
+# Log Analytics Configuration
+log_analytics_sku   = "PerGB2018"  # Options: Free, PerGB2018, PerNode, Premium, Standalone
+log_retention_days  = 30           # Min: 30, Max: 730
+
+# Tags
+common_tags = {
+  Environment = "POC"
+  Project     = "AzureMonitor"
+  Owner       = "CloudTeam"
+  CostCenter  = "IT-Learning"
+  ManagedBy   = "Terraform"
+  CreatedDate = "2025-01-06"
+}

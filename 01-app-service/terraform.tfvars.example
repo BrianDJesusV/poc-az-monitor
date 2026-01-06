@@ -1,0 +1,60 @@
+########################
+# TERRAFORM VARIABLES - ESCENARIO 1: APP SERVICE
+########################
+# Copia este archivo como 'terraform.tfvars' y ajusta los valores según tu entorno
+# Comando: cp terraform.tfvars.example terraform.tfvars
+
+########################
+# SHARED INFRASTRUCTURE (del Escenario 0)
+########################
+# ⚠️ IMPORTANTE: Estos valores deben coincidir con los outputs del Escenario 0
+shared_resource_group_name          = "rg-azmon-poc-eastus2"
+shared_log_analytics_workspace_name = "law-azmon-poc-eastus2"
+
+########################
+# APP SERVICE PLAN
+########################
+# SKU Options: F1 (Free), B1, B2, B3, S1, S2, S3, P1v2, P2v2, P3v2
+# Recomendado para POC: F1 (Free, sin costo, limitado pero suficiente)
+# Alternativa: B1 (Basic, 1 core, 1.75 GB RAM, ~$13/mes) - requiere cuota
+app_service_plan_sku = "F1"
+
+########################
+# TAGS COMUNES
+########################
+# Estos tags se aplicarán a todos los recursos del escenario
+# Puedes sobrescribirlos o usar los valores por defecto
+common_tags = {
+  Environment = "POC"
+  Project     = "AzureMonitor"
+  Owner       = "CloudTeam"
+  CostCenter  = "IT-Learning"
+  ManagedBy   = "Terraform"
+}
+
+########################
+# NOTAS:
+########################
+# 1. Si el Escenario 0 no está desplegado, ejecuta primero:
+#    cd ../00-shared-infrastructure && terraform apply
+#
+# 2. Para obtener los valores correctos del Escenario 0:
+#    cd ../00-shared-infrastructure
+#    terraform output resource_group_name
+#    terraform output log_analytics_workspace_name
+#
+# 3. Costos estimados mensuales (East US 2):
+#    - App Service Plan F1: $0 USD/mes (Free tier)
+#    - Application Insights: ~$2-5 USD/mes (dependiendo de ingesta)
+#    - TOTAL: ~$2-5 USD/mes
+#
+# 4. Limitaciones del tier F1:
+#    - Sin "Always On" (app puede hibernar sin tráfico)
+#    - 60 minutos de CPU al día
+#    - 1 GB de almacenamiento
+#    - Suficiente para POCs y demos
+#
+# 5. Para producción o si necesitas Always On:
+#    - Cambia app_service_plan_sku a "B1" o superior
+#    - Solicita aumento de cuota si es necesario
+#    - En main.tf, cambia always_on a true
