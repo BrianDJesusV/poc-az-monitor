@@ -1,0 +1,364 @@
+{
+	"info": {
+		"_postman_id": "azmon-poc-collection-001",
+		"name": "Azure Monitor POC - Traffic Generator",
+		"description": "Colección para generar tráfico sintético a la aplicación Flask en Azure App Service.\n\n**Cómo usar:**\n1. Importa esta colección en Postman\n2. Ajusta la variable `base_url` si es necesario\n3. Usa Collection Runner para ejecutar múltiples requests\n4. Monitorea Application Insights en Azure Portal\n\n**Endpoints:**\n- GET / (página principal)\n- GET /health (health check)\n- GET /api/success (success endpoint)\n- GET /api/slow (slow endpoint - 2-4s)\n- GET /api/error (error 500)\n- GET /api/notfound (404)\n- POST /api/data (send JSON data)\n\n**NOTA:** Con la versión simple de la app, solo / y /health darán 200 OK. Los demás darán 404 (esperado y útil para demostrar manejo de errores).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://app-azmon-demo-ltr94a.azurewebsites.net",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "✅ Endpoints Exitosos (200 OK)",
+			"item": [
+				{
+					"name": "GET / (Home Page)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 500ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is present\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								""
+							]
+						},
+						"description": "Página principal de la aplicación. Debería retornar HTML con información de la app."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /health (Health Check)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is JSON\", function () {",
+									"    pm.response.to.be.json;",
+									"});",
+									"",
+									"pm.test(\"Has status field\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"});",
+									"",
+									"pm.test(\"Status is healthy\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('healthy');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Health check endpoint. Retorna JSON con status de la aplicación."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints que funcionan con la versión simple de la aplicación."
+		},
+		{
+			"name": "⚠️ API Endpoints (404 en versión simple)",
+			"item": [
+				{
+					"name": "GET /api/success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Con versión simple: 404",
+									"// Con versión completa: 200",
+									"pm.test(\"Status code is 200 or 404\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Response is JSON\", function () {",
+									"        pm.response.to.be.json;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/success",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"success"
+							]
+						},
+						"description": "Endpoint que siempre retorna éxito (200 OK) con la versión completa. Con versión simple: 404."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /api/slow",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 404\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Response took 2+ seconds (slow endpoint)\", function () {",
+									"        pm.expect(pm.response.responseTime).to.be.above(2000);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/slow",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"slow"
+							]
+						},
+						"description": "Endpoint que simula una operación lenta (2-4 segundos). Útil para testing de performance. Con versión simple: 404."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /api/error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Con versión completa: 500",
+									"// Con versión simple: 404",
+									"pm.test(\"Status code is 500 or 404\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([500, 404]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/error",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"error"
+							]
+						},
+						"description": "Endpoint que genera un error 500 intencionalmente. Útil para testing de manejo de errores. Con versión simple: 404."
+					},
+					"response": []
+				},
+				{
+					"name": "GET /api/notfound",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/notfound",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"notfound"
+							]
+						},
+						"description": "Endpoint que siempre retorna 404. Útil para testing de manejo de errores 404."
+					},
+					"response": []
+				},
+				{
+					"name": "POST /api/data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 404\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Response is JSON\", function () {",
+									"        pm.response.to.be.json;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 123,\n    \"action\": \"test_request\",\n    \"timestamp\": \"{{$timestamp}}\",\n    \"data\": {\n        \"test\": true,\n        \"source\": \"postman\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/data",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"data"
+							]
+						},
+						"description": "Endpoint POST para enviar datos JSON. Con versión completa retorna 200 con echo de los datos. Con versión simple: 404."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de API que solo funcionan con la versión completa de la aplicación. Con la versión simple darán 404 (esperado)."
+		},
+		{
+			"name": "🎲 Random Endpoints (para variedad)",
+			"item": [
+				{
+					"name": "Random GET Request",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Seleccionar endpoint aleatorio",
+									"const endpoints = [",
+									"    '/',",
+									"    '/health',",
+									"    '/api/success',",
+									"    '/api/slow',",
+									"    '/api/error',",
+									"    '/api/notfound'",
+									"];",
+									"",
+									"const randomEndpoint = endpoints[Math.floor(Math.random() * endpoints.length)];",
+									"pm.variables.set('random_endpoint', randomEndpoint);",
+									"",
+									"console.log('Selected endpoint:', randomEndpoint);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Request completed\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 404, 500]);",
+									"});",
+									"",
+									"console.log('Endpoint:', pm.variables.get('random_endpoint'));",
+									"console.log('Status:', pm.response.code);",
+									"console.log('Time:', pm.response.responseTime + 'ms');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{random_endpoint}}",
+							"host": [
+								"{{base_url}}{{random_endpoint}}"
+							]
+						},
+						"description": "Request que selecciona un endpoint aleatorio cada vez que se ejecuta. Ideal para usar con Collection Runner."
+					},
+					"response": []
+				}
+			],
+			"description": "Request especial que selecciona endpoints aleatoriamente. Perfecto para generar tráfico variado con Collection Runner."
+		}
+	]
+}
