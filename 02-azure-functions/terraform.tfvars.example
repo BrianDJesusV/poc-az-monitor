@@ -1,0 +1,14 @@
+# Example configuration for Scenario 2: Azure Functions
+# Copy this file to terraform.tfvars and adjust values as needed
+
+resource_group_name = "rg-azmon-poc-mexicocentral"
+location            = "mexicocentral"
+law_name            = "law-azmon-poc-mexicocentral"
+environment         = "poc"
+
+tags = {
+  environment = "poc"
+  project     = "azure-monitor"
+  scenario    = "functions-serverless"
+  managed-by  = "terraform"
+}
