@@ -1,0 +1,67 @@
+===========================================
+  ERROR 404 - FUNCTIONS NO DESPLEGADAS
+===========================================
+
+PROBLEMA:
+---------
+HttpTrigger responde 404 (No encontrado)
+
+CAUSA:
+------
+Las Functions NO están desplegadas todavía
+Solo la infraestructura está lista
+
+SOLUCION:
+---------
+Deployment manual via Azure Portal
+
+
+EJECUTA ESTE COMANDO:
+=====================
+
+.\deploy_manual_guided.ps1
+
+
+QUE HACE:
+=========
+
+1. Verifica estado actual
+2. Crea ZIP si no existe
+3. Te guia PASO A PASO:
+   - Abre Portal automaticamente
+   - Espera confirmacion en cada paso
+   - Verifica deployment exitoso
+4. Test HttpTrigger al final
+
+
+PASOS QUE HARAS (guiado):
+=========================
+
+1. Portal se abre automaticamente
+2. Click: Deployment Center
+3. Click: ZIP Deploy
+4. Browse -> functions_manual.zip
+5. Click: Deploy
+6. Esperar 1-2 min
+7. Ver "Deployment successful"
+
+
+TIEMPO: 3-5 minutos
+
+
+RESULTADO:
+==========
+✓ 4 Functions desplegadas
+✓ HttpTrigger 200 OK
+✓ Queue triggers procesando
+✓ Blob triggers procesando
+✓ Escenario 2 COMPLETO
+
+
+EJECUTA AHORA:
+==============
+
+.\deploy_manual_guided.ps1
+
+
+===========================================

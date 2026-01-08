@@ -1,0 +1,49 @@
+===========================================
+  ZIP DEPLOYMENT FALLO - DEPLOY MANUAL
+===========================================
+
+BUENAS NOTICIAS:
+----------------
+✅ Infraestructura: COMPLETADA
+✅ Function App: func-azmon-demo-x7p3be
+✅ App Insights: Configurado
+✅ Storage: Listo
+
+FALTA:
+------
+⏳ Subir código de Functions (4 archivos)
+
+
+SOLUCION (3 COMANDOS):
+======================
+
+1. Crear ZIP y abrir Portal:
+   .\deploy_via_portal.ps1
+
+2. En el Portal (3 clicks):
+   a. Deployment Center → ZIP Deploy
+   b. Browse → functions_manual.zip
+   c. Deploy
+
+3. Test Functions:
+   .\test_functions.ps1
+
+
+TIEMPO TOTAL: 5-6 minutos
+
+
+RESULTADO:
+==========
+✅ 4 Functions desplegadas
+✅ HttpTrigger funcionando
+✅ Queue + Blob triggers procesando
+✅ Escenario 2 COMPLETO
+
+
+EJECUTA PASO 1:
+===============
+
+.\deploy_via_portal.ps1
+
+
+===========================================

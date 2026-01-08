@@ -24,6 +24,11 @@ resource "random_string" "suffix" {
   upper   = false
 }
 
+# Data source: Reference existing Resource Group from Scenario 0
+data "azurerm_resource_group" "shared" {
+  name = var.resource_group_name
+}
+
 # Data source: Reference existing Log Analytics Workspace from Scenario 0
 data "azurerm_log_analytics_workspace" "shared" {
   name                = var.law_name
@@ -33,7 +38,7 @@ data "azurerm_log_analytics_workspace" "shared" {
 # Storage Account for Functions
 resource "azurerm_storage_account" "functions" {
   name                     = "stazmon${random_string.suffix.result}"
-  resource_group_name      = var.resource_group_name
+  resource_group_name      = data.azurerm_resource_group.shared.name
   location                 = var.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
@@ -74,20 +79,20 @@ resource "azurerm_storage_queue" "notifications" {
 resource "azurerm_application_insights" "functions" {
   name                = "appi-azmon-functions-${random_string.suffix.result}"
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = data.azurerm_resource_group.shared.name
   application_type    = "web"
   workspace_id        = data.azurerm_log_analytics_workspace.shared.id
 
   tags = var.tags
 }
 
-# App Service Plan for Functions (Consumption)
+# App Service Plan for Functions (Standard S1)
 resource "azurerm_service_plan" "functions" {
   name                = "asp-azmon-functions-${random_string.suffix.result}"
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = data.azurerm_resource_group.shared.name
   os_type             = "Linux"
-  sku_name            = "Y1" # Consumption plan
+  sku_name            = "S1" # Standard plan
 
   tags = var.tags
 }
@@ -96,7 +101,7 @@ resource "azurerm_service_plan" "functions" {
 resource "azurerm_linux_function_app" "main" {
   name                       = "func-azmon-demo-${random_string.suffix.result}"
   location                   = var.location
-  resource_group_name        = var.resource_group_name
+  resource_group_name        = data.azurerm_resource_group.shared.name
   service_plan_id            = azurerm_service_plan.functions.id
   storage_account_name       = azurerm_storage_account.functions.name
   storage_account_access_key = azurerm_storage_account.functions.primary_access_key

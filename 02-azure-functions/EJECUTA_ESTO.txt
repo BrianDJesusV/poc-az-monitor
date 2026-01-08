@@ -1,0 +1,64 @@
+===============================================
+  SOLUCION APLICADA - BASIC B1 CONFIGURADO
+===============================================
+
+PROBLEMA:
+---------
+El script DEPLOY_BASIC.ps1 no cambió correctamente
+el SKU de Y1 a B1 en main.tf
+
+SOLUCION:
+---------
+✅ YA APLIQUE EL CAMBIO MANUALMENTE
+✅ main.tf ahora tiene: sku_name = "B1"
+
+
+EJECUTA ESTE COMANDO AHORA:
+============================
+
+.\RETRY_B1.ps1
+
+
+QUE HACE:
+=========
+
+1. Limpia el deployment fallido (rg-azmon-functions-xm3zsy)
+2. Limpia Terraform state
+3. Verifica que main.tf tiene B1
+4. Ejecuta terraform plan
+5. Te pide confirmar (S/N)
+6. Ejecuta terraform apply con BASIC B1
+7. Despliega las 4 functions
+8. Test HttpTrigger
+9. Genera test data
+10. Muestra resumen
+
+
+TIEMPO: 10-15 minutos
+
+
+RESULTADO:
+==========
+
+✅ Resource Group: rg-azmon-functions-XXXXXX (East US)
+✅ Storage: stazmonXXXXXX
+✅ App Insights: appi-azmon-functions-XXXXXX
+✅ Function App: func-azmon-demo-XXXXXX
+✅ Service Plan: BASIC B1 ($13/mes) ← CORRECTO
+✅ 4 Functions desplegadas
+
+
+CONFIRMACIONES:
+===============
+
+Te pedirá confirmar 1 vez:
+"Aplicar el plan con Basic B1? (S/N)" → S
+
+
+===============================================
+
+EJECUTA AHORA:
+
+.\RETRY_B1.ps1
+
+===============================================
