@@ -1,498 +1,254 @@
-# 🔍 POC Azure Monitor - Observabilidad en Azure
+# POC Azure Monitor - Observabilidad Completa
 
-> **Proof of Concept completado para demostrar capacidades de Azure Monitor, Log Analytics y Application Insights**
+## 📋 Descripción
 
-**Estado Actual:** ✅ Escenario 1 COMPLETADO (7 de enero, 2026)  
-**Región:** Mexico Central  
-**Tiempo de Setup:** 30 minutos desde cero
+Proof of Concept completo de Azure Monitor con tres escenarios que demuestran:
+- Monitoreo centralizado con Log Analytics
+- Observabilidad de aplicaciones con Application Insights
+- Telemetría serverless con Azure Functions
+- Queries KQL para análisis y correlación
 
----
+## 🏗️ Arquitectura
 
-## 📋 ¿Qué es Este Proyecto?
+```
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│  Escenario 0: Shared Infrastructure                    │
+│  ┌───────────────────────────────────────────────┐    │
+│  │  Log Analytics Workspace                       │    │
+│  │  - Container Insights                          │    │
+│  │  - Security Solution                           │    │
+│  │  - Azure Activity Logs                         │    │
+│  └───────────────────────────────────────────────┘    │
+│                         ▲                               │
+│                         │                               │
+│         ┌───────────────┴───────────────┐              │
+│         │                               │              │
+│         │                               │              │
+│  ┌──────┴────────┐              ┌──────┴────────┐    │
+│  │ Escenario 1   │              │ Escenario 2   │    │
+│  │ App Service   │              │ Functions     │    │
+│  │ + App Insights│              │ + App Insights│    │
+│  └───────────────┘              └───────────────┘    │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
 
-POC **modular e incremental** para probar y visualizar los componentes de observabilidad de Azure en escenarios prácticos.
+## 🚀 Quick Start
 
-### 🎯 Objetivos Cumplidos
+### **1. Configurar Seguridad**
 
-- ✅ **Infraestructura completa** desplegada con Terraform
-- ✅ **Application Insights** capturando telemetría en tiempo real
-- ✅ **Queries KQL** documentadas y probadas
-- ✅ **Generación de tráfico** automatizada (PowerShell + Postman)
-- ✅ **Documentación exhaustiva** para transfer de conocimiento
-- ✅ **Lecciones aprendidas** documentadas (F1 vs B1, deployment methods)
+El proyecto ya tiene `.gitignore` configurado para proteger credenciales.
 
----
+### **2. Desplegar Todo**
 
-## 🏗️ Estructura del Proyecto
+```powershell
+.\DEPLOY_SECURE.ps1
+```
+
+Cuando pregunte, escribe: `TODO`
+
+### **3. Verificar Deployment**
+
+```powershell
+.\CHECK_READY.ps1
+```
+
+## 📂 Estructura del Proyecto
 
 ```
 poc_azure_monitor/
+├── .gitignore                      (Protección de credenciales)
+├── README.md                       (este archivo)
+├── DEPLOY_SECURE.ps1              (⭐ Script principal deployment)
+├── CHECK_READY.ps1                (Verificación post-limpieza)
 │
-├── 📁 00-shared-infrastructure/     ✅ DESPLEGADO
-│   └── Log Analytics Workspace + Solutions
-│   └── Resource Group (Mexico Central)
+├── docs/                          (Documentación general)
+│   ├── SECURITY_IMPROVEMENTS.md
+│   ├── CLEANUP_GUIDE.md
+│   └── guías rápidas (.txt)
 │
-├── 📁 01-app-service/               ✅ COMPLETADO
-│   ├── App Service Plan (B1)
-│   ├── Web App (Python Flask)
-│   ├── Application Insights
-│   ├── Scripts de tráfico
-│   └── Postman Collection
+├── scripts/                       (Scripts auxiliares)
+│   ├── DELETE_ALL.ps1
+│   ├── CLEAN_GIT_HISTORY.ps1
+│   └── SECURITY_INCIDENT_RESPONSE.ps1
 │
-├── 📁 docs/                         ✅ DOCUMENTACIÓN COMPLETA
-│   ├── ESCENARIO_1_KNOWLEDGE_TRANSFER.md    ⭐⭐⭐ LEER PRIMERO
-│   ├── RESUMEN_EJECUTIVO_ESCENARIO_1.md     ⭐⭐ Quick Reference
-│   ├── INVENTARIO_PROYECTO.md               📂 Índice completo
-│   └── [10+ documentos adicionales]
+├── 00-shared-infrastructure/      (Escenario 0)
+│   ├── README.md
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── terraform.tfvars
 │
-└── 📁 02-azure-functions/           ⏳ Próximamente
+├── 01-app-service/               (Escenario 1)
+│   ├── README.md
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── app/                      (Código Flask)
+│   ├── scripts/                  (Generate traffic)
+│   ├── files/                    (Postman collections)
+│   └── docs/                     (Guías Postman)
+│
+└── 02-azure-functions/           (Escenario 2)
+    ├── README.md
+    ├── main.tf
+    ├── variables.tf
+    ├── outputs.tf
+    ├── terraform.tfvars
+    ├── functions/                (Código Functions)
+    ├── scripts/                  (Deployment scripts)
+    └── docs/                     (Guías deployment)
 ```
 
----
+## 📋 Escenarios
 
-## 🚀 INICIO RÁPIDO (15 minutos)
+### **Escenario 0: Shared Infrastructure** 💰 $0/mes
 
-### **Opción 1: Replicar Desde Cero**
+Base compartida:
+- Log Analytics Workspace
+- Monitoring Solutions
 
-```bash
-# 1. Clonar/Navegar
-cd C:\Users\User\Documents\proyectos\proyectos_trabajo\azure\poc_azure_monitor
+📖 [Ver detalles](00-shared-infrastructure/README.md)
 
-# 2. Autenticarse
-az login
-az account set --subscription "dd4fe3a1-a740-49ad-b613-b4f951aa474c"
+### **Escenario 1: App Service** 💰 ~$13/mes
 
-# 3. Deploy infra compartida (5 min)
-cd 00-shared-infrastructure
-terraform init
-terraform apply
+Aplicación web con monitoreo:
+- App Service (B1)
+- Application Insights
+- Flask Python app
 
-# 4. Deploy App Service (5 min)
-cd ../01-app-service
-terraform init
-terraform apply
+📖 [Ver detalles](01-app-service/README.md)
 
-# 5. Deploy aplicación (2 min)
-cd files/flask_example
-az webapp deploy \
-  --resource-group rg-azmon-poc-mexicocentral \
-  --name app-azmon-demo-<random> \
-  --src-path simple-flask.zip \
-  --type zip
+### **Escenario 2: Azure Functions** 💰 ~$70/mes
 
-# 6. Generar tráfico (3 min)
-cd ../..
-.\generate_traffic.ps1 -TotalRequests 200
-```
+Serverless con triggers:
+- Function App (S1)
+- 4 Functions (HTTP, Timer, Queue, Blob)
+- Application Insights
 
-### **Opción 2: Explorar Proyecto Existente**
+📖 [Ver detalles](02-azure-functions/README.md)
 
-```bash
-# 1. Revisar estado
-cd 01-app-service
-terraform show
+## 💰 Costos
 
-# 2. Ver recursos desplegados
-az resource list \
-  --resource-group rg-azmon-poc-mexicocentral \
-  --output table
+| Escenario | Recursos | Costo |
+|-----------|----------|-------|
+| 0 | Log Analytics Workspace | $0/mes |
+| 1 | App Service B1 + App Insights | ~$13/mes |
+| 2 | Functions S1 + Storage + App Insights | ~$70/mes |
+| **TOTAL** | | **~$83/mes** |
 
-# 3. Generar tráfico
-.\generate_traffic.ps1 -TotalRequests 100
+## 🔒 Seguridad
 
-# 4. Ver métricas
-# Azure Portal → Application Insights → appi-azmon-appservice-ltr94a
-```
+### **Protecciones Implementadas**
 
----
+✅ `.gitignore` configurado (previene exposure de credenciales)  
+✅ NO se crean `outputs.json` con secrets  
+✅ Credenciales solo en memoria durante deployment  
+✅ ZIPs temporales excluidos de Git  
+✅ Terraform states protegidos  
 
-## 📚 DOCUMENTACIÓN ESENCIAL
+### **Archivos NUNCA comitear**
 
-### **🌟 Documento Principal (LEER PRIMERO)**
-```
-docs/ESCENARIO_1_KNOWLEDGE_TRANSFER.md (627 líneas)
-```
-**Contiene TODO lo importante:**
-- ✅ Arquitectura completa con diagramas
-- ✅ 6 queries KQL esenciales
-- ✅ Lecciones aprendidas (F1 vs B1, deployments)
-- ✅ Troubleshooting completo
-- ✅ Scripts de demo (5 y 10 minutos)
-- ✅ Checklist de validación
-- ✅ Cómo replicar paso a paso
+❌ `*.tfstate`  
+❌ `*.tfstate.backup`  
+❌ `outputs.json`  
+❌ `outputs.txt`  
+❌ `*.zip`  
 
-### **⚡ Resumen Ejecutivo (30 segundos)**
-```
-docs/RESUMEN_EJECUTIVO_ESCENARIO_1.md (175 líneas)
-```
-**Quick reference con:**
-- ✅ Top 3 lecciones aprendidas
-- ✅ Queries KQL copy-paste
-- ✅ Replicación en 15 minutos
-- ✅ Demo en 5 minutos
+## 🧹 Limpieza
 
-### **📂 Índice Completo**
-```
-docs/INVENTARIO_PROYECTO.md
-```
-**Mapa de todos los archivos del proyecto**
+Para eliminar todos los recursos:
 
----
-
-## 🎯 ESCENARIOS
-
-| # | Escenario | Estado | Documentación | Recursos |
-|---|-----------|--------|---------------|----------|
-| 0 | Shared Infrastructure | ✅ | terraform.tfstate | LAW + Solutions |
-| 1 | App Service + App Insights | ✅ | KNOWLEDGE_TRANSFER.md | ASP + Web App + App Insights |
-| 2 | Azure Functions | ⏳ | - | Planeado |
-| 3 | Container Apps | ⏳ | - | Planeado |
-
----
-
-## 📊 LO QUE ESTE POC DEMUESTRA
-
-### **1. Application Performance Monitoring (APM)**
-- ✅ Telemetría automática de HTTP requests
-- ✅ Response times y latencias
-- ✅ Success/failure rates
-- ✅ Dependency tracking
-- ✅ Live Metrics (tiempo real)
-
-### **2. Log Analytics Integration**
-- ✅ Workspace compartido entre servicios
-- ✅ Retención configurable (30 días)
-- ✅ Queries KQL para análisis avanzado
-
-### **3. Alertas y Smart Detection**
-- ✅ Action Groups configurados
-- ✅ Smart Detection habilitado
-- ✅ Detección automática de anomalías
-
----
-
-## 🔑 QUERIES KQL ESENCIALES
-
-### **Request Distribution**
-```kusto
-requests
-| where timestamp > ago(1h)
-| summarize count() by name, resultCode
-| order by count_ desc
-```
-
-### **Success Rate**
-```kusto
-requests
-| where timestamp > ago(1h)
-| summarize 
-    Total = count(),
-    Exitosos = countif(success == true),
-    SuccessRate = round(100.0 * countif(success)/count(), 2)
-```
-
-### **Performance Analysis (P95)**
-```kusto
-requests
-| where timestamp > ago(1h)
-| summarize P95 = percentile(duration, 95) by name
-| order by P95 desc
-```
-
-### **Timeline Visualization**
-```kusto
-requests
-| where timestamp > ago(1h)
-| summarize count() by bin(timestamp, 1m)
-| render timechart
-```
-
-**Más queries:** Ver `docs/ESCENARIO_1_KNOWLEDGE_TRANSFER.md`
-
----
-
-## 🛠️ HERRAMIENTAS DE GENERACIÓN DE TRÁFICO
-
-### **1. Script PowerShell (Recomendado)**
 ```powershell
-cd 01-app-service
-.\generate_traffic.ps1 -TotalRequests 200 -IntervalMs 500
+.\scripts\DELETE_ALL.ps1
 ```
-**Ventajas:** Rápido, configurable, sin dependencias
 
-### **2. Script Python**
-```bash
-python generate_traffic.py https://app-azmon-demo-ltr94a.azurewebsites.net
-```
-**Ventajas:** Cross-platform, detallado
+Luego verifica que todo esté limpio:
 
-### **3. Postman Collection (Testing Manual)**
+```powershell
+.\CHECK_READY.ps1
 ```
-Archivos:
-- Azure_Monitor_POC_Collection.postman_collection.json
-- Azure_Monitor_POC.postman_environment.json
 
-Guías:
-- GUIA_POSTMAN.md (512 líneas)
-- POSTMAN_QUICKSTART.md (100 líneas)
+## 📊 Monitoreo y Queries
+
+### **Acceso a Logs**
+
+Azure Portal → Log Analytics Workspace → Logs
+
+### **Queries de Ejemplo**
+
+```kql
+// Ver todas las requests de App Service
+AppRequests
+| where TimeGenerated > ago(24h)
+| summarize Count=count() by bin(TimeGenerated, 5m)
+| render timechart
+
+// Ver ejecuciones de Functions
+traces
+| where cloud_RoleName contains "func-azmon"
+| where TimeGenerated > ago(1h)
+| project TimeGenerated, message, severityLevel
 ```
-**Ventajas:** Visual, Collection Runner, tests automáticos
+
+## 🛠️ Comandos Útiles
+
+### **Deployment**
+```powershell
+.\DEPLOY_SECURE.ps1                 # Desplegar todo
+```
+
+### **Verificación**
+```powershell
+.\CHECK_READY.ps1                   # Verificar estado
+az group list --query "[?starts_with(name, 'rg-azmon')].name"  # Ver resources
+```
+
+### **Limpieza**
+```powershell
+.\scripts\DELETE_ALL.ps1            # Eliminar todo
+```
+
+## 📚 Documentación Adicional
+
+- [Mejoras de Seguridad](docs/SECURITY_IMPROVEMENTS.md)
+- [Guía de Limpieza](docs/CLEANUP_GUIDE.md)
+- [Deployment Manual Functions](docs/DEPLOYMENT_MANUAL_GUIDE.md)
+
+## ⚠️ Notas Importantes
+
+1. **Región**: Mexico Central para todos los recursos
+2. **Orden de deployment**: Escenario 0 → 1 → 2
+3. **Functions**: Deployment manual via Portal (CLI puede fallar)
+4. **Quota**: Standard S1 usado por limitaciones de Consumption Plan
+5. **Seguridad**: Siempre verificar `.gitignore` antes de commits
+
+## 🎯 Próximos Pasos
+
+Después del deployment:
+
+1. ✅ Verificar recursos en Azure Portal
+2. ✅ Ejecutar queries KQL en Log Analytics
+3. ✅ Revisar Application Insights Live Metrics
+4. ✅ Generar tráfico de prueba
+5. ✅ Analizar telemetría y correlación
+
+## 📝 Lecciones Aprendidas
+
+- **Seguridad**: Nunca exponer `*.tfstate` o `outputs.json` en Git
+- **Deployment**: Portal más confiable que CLI para Functions
+- **Quotas**: Verificar disponibilidad regional antes de planear
+- **Monitoreo**: Centralización en LAW facilita correlación
+
+## 🔗 Enlaces
+
+- [Azure Monitor Docs](https://docs.microsoft.com/azure/azure-monitor/)
+- [KQL Reference](https://docs.microsoft.com/azure/data-explorer/kusto/query/)
+- [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview)
 
 ---
 
-## 💡 LECCIONES APRENDIDAS CLAVE
-
-### **1. F1 Free Tier → No Sirve para POCs**
-```
-Problema: QuotaExceeded, builds fallan
-Solución: Usar B1 Basic ($13/mes)
-```
-
-### **2. Deployment Method**
-```
-✅ FUNCIONA: az webapp deploy --type zip
-❌ NO FUNCIONA: az webapp up (con F1/B1)
-```
-
-### **3. Regional Quotas**
-```
-East US 2: ❌ Quota bloqueada
-Mexico Central: ✅ Quota disponible
-```
-
-### **4. Data Lag**
-```
-Live Metrics: Instantáneo
-Logs/Performance: 2-5 minutos
-→ Planear demos con esto en mente
-```
-
-**Más detalles:** `docs/ESCENARIO_1_KNOWLEDGE_TRANSFER.md`
-
----
-
-## 🎨 HACER UNA DEMO
-
-### **Demo Rápida (5 minutos)**
-
-1. **Mostrar arquitectura** (1 min)
-   - Diagrama de componentes
-   - Flujo de telemetría
-
-2. **Generar tráfico** (1 min)
-   ```powershell
-   .\generate_traffic.ps1 -TotalRequests 50
-   ```
-
-3. **Live Metrics** (1 min)
-   - Mostrar requests en tiempo real
-   - Response times
-
-4. **Queries KQL** (2 min)
-   - Performance analysis
-   - Error distribution
-
-**Script completo:** `docs/ESCENARIO_1_KNOWLEDGE_TRANSFER.md` (sección "Demos")
-
----
-
-## 💰 COSTOS
-
-### **Configuración Actual (B1)**
-```
-App Service Plan B1:      ~$13.14/mes
-Application Insights:     $0.00 (5GB/mes gratis)
-Log Analytics:            $0.00 (5GB/mes gratis)
-TOTAL:                    ~$13.15/mes
-```
-
-### **Cómo Reducir Costos**
-```bash
-# Downgrade a F1 (si deployment ya está listo)
-az appservice plan update \
-  --resource-group rg-azmon-poc-mexicocentral \
-  --name asp-azmon-poc-ltr94a \
-  --sku F1
-
-# Destruir recursos cuando no se usen
-terraform destroy
-```
-
----
-
-## 🔧 TROUBLESHOOTING
-
-### **No aparecen métricas en Application Insights**
-
-**Solución rápida:**
-```bash
-# 1. Verificar Connection String
-az webapp config appsettings list \
-  --resource-group rg-azmon-poc-mexicocentral \
-  --name app-azmon-demo-ltr94a \
-  --query "[?name=='APPLICATIONINSIGHTS_CONNECTION_STRING']"
-
-# 2. Reiniciar app
-az webapp restart \
-  --resource-group rg-azmon-poc-mexicocentral \
-  --name app-azmon-demo-ltr94a
-
-# 3. Esperar 5 minutos y verificar en Live Metrics
-```
-
-**Troubleshooting completo:** `docs/ESCENARIO_1_KNOWLEDGE_TRANSFER.md`
-
----
-
-## 📦 ARCHIVOS CRÍTICOS
-
-### **Backup Inmediato (NO PERDER)**
-```
-✅ 00-shared-infrastructure/terraform.tfstate
-✅ 00-shared-infrastructure/terraform.tfvars
-✅ 01-app-service/terraform.tfstate
-✅ 01-app-service/terraform.tfvars
-```
-
-### **Documentación Crítica**
-```
-✅ docs/ESCENARIO_1_KNOWLEDGE_TRANSFER.md
-✅ docs/RESUMEN_EJECUTIVO_ESCENARIO_1.md
-✅ docs/INVENTARIO_PROYECTO.md
-```
-
-### **Apps y Scripts**
-```
-✅ 01-app-service/files/flask_example/*.zip
-✅ 01-app-service/generate_traffic.ps1
-✅ 01-app-service/*.postman_collection.json
-```
-
----
-
-## 🌐 RECURSOS DESPLEGADOS
-
-### **Resource Group: rg-azmon-poc-mexicocentral**
-```
-1. law-azmon-poc-mexicocentral              (Log Analytics)
-2. AzureActivity(law-azmon-poc...)          (Solution)
-3. ContainerInsights(law-azmon-poc...)      (Solution)
-4. Security(law-azmon-poc...)               (Solution)
-5. asp-azmon-poc-ltr94a                     (App Service Plan B1)
-6. app-azmon-demo-ltr94a                    (Web App)
-7. appi-azmon-appservice-ltr94a             (Application Insights)
-8. Application Insights Smart Detection      (Action Group)
-```
-
-### **URLs de Acceso**
-```
-Web App:          https://app-azmon-demo-ltr94a.azurewebsites.net
-Kudu:             https://app-azmon-demo-ltr94a.scm.azurewebsites.net
-App Insights:     [Ver en Azure Portal]
-```
-
----
-
-## 🏆 CHECKLIST DE VALIDACIÓN
-
-### **Infraestructura**
-- [x] Resource Group creado
-- [x] Log Analytics Workspace operacional
-- [x] App Service Plan desplegado
-- [x] Web App funcionando
-- [x] Application Insights configurado
-
-### **Aplicación**
-- [x] Flask app desplegada
-- [x] Endpoints /health y / responden 200 OK
-- [x] Connection String configurado
-- [x] Telemetría llegando a App Insights
-
-### **Monitoreo**
-- [x] Live Metrics muestra datos en tiempo real
-- [x] Performance dashboard poblado
-- [x] Queries KQL funcionan
-- [x] Al menos 300 requests generados
-
-### **Documentación**
-- [x] KNOWLEDGE_TRANSFER.md completo
-- [x] RESUMEN_EJECUTIVO.md creado
-- [x] INVENTARIO_PROYECTO.md actualizado
-- [x] Screenshots capturados
-- [x] Terraform states respaldados
-
----
-
-## 📈 ESTADÍSTICAS DEL PROYECTO
-
-```
-Recursos Azure:           8
-Archivos Terraform:       20
-Líneas Documentación:     ~3500+
-Queries KQL:              6 esenciales + variaciones
-Scripts:                  3 (PowerShell, Python, Postman)
-Tiempo Setup:             30 minutos
-Tiempo Demo:              5-10 minutos
-Costo Mensual:            ~$13/mes (B1)
-```
-
----
-
-## 🚀 PRÓXIMOS PASOS
-
-### **Inmediato**
-1. Explorar Application Insights
-2. Ejecutar queries KQL documentadas
-3. Hacer una demo de 5 minutos
-
-### **Corto Plazo**
-1. Escenario 2: Azure Functions
-2. Dashboard consolidado
-3. Alertas personalizadas
-
-### **Mediano Plazo**
-1. Escenario 3: Container Apps
-2. Distributed tracing avanzado
-3. Integración con Prometheus
-
----
-
-## 📞 RECURSOS Y SOPORTE
-
-### **Documentación del Proyecto**
-- **Principal:** `docs/ESCENARIO_1_KNOWLEDGE_TRANSFER.md`
-- **Quick Reference:** `docs/RESUMEN_EJECUTIVO_ESCENARIO_1.md`
-- **Inventario:** `docs/INVENTARIO_PROYECTO.md`
-- **Postman:** `01-app-service/GUIA_POSTMAN.md`
-
-### **Documentación Oficial Azure**
-- [Azure Monitor](https://docs.microsoft.com/azure/azure-monitor/)
-- [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/)
-- [KQL Reference](https://docs.microsoft.com/azure/data-explorer/kudu-query-language)
-
----
-
-## 🎓 ¿NUEVO EN EL PROYECTO?
-
-### **Lee en este orden:**
-1. Este README (overview general)
-2. `docs/RESUMEN_EJECUTIVO_ESCENARIO_1.md` (30 segundos)
-3. `docs/ESCENARIO_1_KNOWLEDGE_TRANSFER.md` (documento completo)
-4. `docs/INVENTARIO_PROYECTO.md` (mapa de archivos)
-
-### **Para empezar:**
-```bash
-cd 01-app-service
-.\generate_traffic.ps1 -TotalRequests 50
-# Luego ir a Azure Portal → Application Insights
-```
-
----
-
-**📅 Última actualización:** 7 de enero de 2026  
-**🔖 Versión:** 2.0 (Escenario 1 Completado)  
-**👤 Mantenido por:** Brian Poch  
-**📧 Contacto:** brian.poch@hotmail.com  
-
-**⭐ Escenario 1: COMPLETADO ✅**  
-**🎯 POC: FUNCIONAL Y DOCUMENTADO 100%**
+**Fecha de última actualización**: Enero 2026  
+**Estado**: Listo para deployment ✅

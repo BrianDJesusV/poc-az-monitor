@@ -1,0 +1,66 @@
+===========================================
+  ELIMINACION INMEDIATA - 2 PASOS
+===========================================
+
+INCIDENTE DE SEGURIDAD:
+-----------------------
+Azure Storage Connection String expuesto
+en GitHub publico
+
+
+ACCION INMEDIATA:
+=================
+
+PASO 1: ELIMINAR RECURSOS AZURE
+--------------------------------
+
+Ejecuta:
+
+.\DELETE_ALL.ps1
+
+
+Que hace:
+  - Elimina TODOS los resource groups
+  - Elimina archivos locales con credenciales
+  - Limpia Terraform states
+
+Tiempo: 1 min ejecutar, 10 min completar
+
+Confirmaciones requeridas:
+  1. Escribir: DELETE ALL
+  2. Escribir: SI
+
+
+PASO 2: ELIMINAR REPO GITHUB
+-----------------------------
+
+1. Ve a: https://github.com/BrianDJesusV/poc-az-monitor
+
+2. Settings (tab superior)
+
+3. Scroll abajo -> Danger Zone
+
+4. Delete this repository
+
+5. Escribir: BrianDJesusV/poc-az-monitor
+
+6. Confirmar
+
+Tiempo: 1 minuto
+
+
+TOTAL: 2 minutos de tu tiempo
+       10 minutos para completarse
+       TODO eliminado
+
+
+EJECUTA AHORA:
+==============
+
+.\DELETE_ALL.ps1
+
+
+Luego elimina el repo en GitHub
+
+
+===========================================

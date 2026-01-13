@@ -1,334 +1,81 @@
-# 🚀 Escenario 2: Azure Functions + Serverless Monitoring
+# Escenario 2: Azure Functions + Serverless Monitoring
 
-**Estado:** ✅ LISTO PARA DEPLOYMENT  
-**Fecha:** 7 de enero de 2026  
-**Duración estimada:** 30 minutos
+## 📋 Descripción
 
----
+Azure Functions con monitoreo serverless completo:
+- Function App (4 Functions Python)
+- Storage Account (queues, blobs)
+- Application Insights
+- Event-driven triggers
 
-## 📋 DESCRIPCIÓN
+## 🚀 Deployment
 
-Este escenario demuestra monitoreo de arquitectura serverless event-driven con:
-- ✅ Azure Functions (Consumption Plan)
-- ✅ 4 triggers diferentes (HTTP, Timer, Queue, Blob)
-- ✅ Application Insights integration
-- ✅ Pay-per-execution cost model
+### **Infraestructura (Automático)**
 
----
-
-## 🏗️ ARQUITECTURA
-
-```
-Log Analytics Workspace (Escenario 0)
-         ↓
-Application Insights (Functions)
-         ↓
-Storage Account
-  ├── Blobs (uploads, processed)
-  └── Queues (orders, notifications)
-         ↓
-Function App (Consumption Y1)
-  ├── HttpTrigger  (/api/HttpTrigger)
-  ├── TimerTrigger (every 5 min)
-  ├── QueueTrigger (queue-orders)
-  └── BlobTrigger  (uploads container)
-```
-
----
-
-## 📦 COMPONENTES
-
-### **Infraestructura (Terraform)**
-1. Storage Account (`stazmon<random>`)
-   - 2 Containers: uploads, processed
-   - 2 Queues: queue-orders, queue-notifications
-
-2. Application Insights (`appi-azmon-functions-<random>`)
-   - Linked to LAW from Scenario 0
-   - Automatic telemetry collection
-
-3. Function App (`func-azmon-demo-<random>`)
-   - Plan: Consumption (Y1)
-   - Runtime: Python 3.11
-   - 4 Functions deployed
-
-### **Functions (Python)**
-1. **HttpTrigger** - Hello API
-   - Endpoint: GET/POST /api/HttpTrigger?name=YourName
-   - Purpose: REST API demonstration
-
-2. **TimerTrigger** - Health Check
-   - Schedule: Every 5 minutes
-   - Purpose: Scheduled job pattern
-
-3. **QueueTrigger** - Order Processor
-   - Queue: queue-orders
-   - Purpose: Async processing pattern
-
-4. **BlobTrigger** - File Processor
-   - Container: uploads
-   - Purpose: Event-driven file processing
-
----
-
-## 🚀 DEPLOYMENT
-
-### **Prerequisites**
-- ✅ Scenario 0 deployed (Log Analytics Workspace)
-- ✅ Azure CLI authenticated
-- ✅ Terraform >= 1.4.0
-
-### **Step 1: Deploy Infrastructure (5-8 min)**
 ```powershell
-cd 02-azure-functions
-
-# Initialize Terraform
-terraform init
-
-# Preview changes
-terraform plan
-
-# Deploy
-terraform apply -auto-approve
-
-# Save outputs
-terraform output > outputs.txt
+# Desde la raíz del proyecto
+.\DEPLOY_SECURE.ps1
 ```
 
-### **Step 2: Deploy Functions (3-5 min)**
-```powershell
-# Option 1: PowerShell (Recommended for Windows)
-.\deploy_functions.ps1
+### **Functions (Manual via Portal)**
 
-# Option 2: Bash (WSL/Linux/Mac)
-bash deploy_functions.sh
-```
+1. El script creará `functions_deploy.zip`
+2. Azure Portal → Function App → Deployment Center
+3. ZIP Deploy → Browse → `functions_deploy.zip`
+4. Deploy
 
-### **Step 3: Test Functions (2 min)**
-```powershell
-.\test_functions.ps1
-```
+**Razón del deployment manual**: CLI puede fallar con Standard S1. Portal es más confiable.
 
----
+## 📊 Recursos Creados
 
-## 🧪 TESTING
+- **Storage Account**: Queues y Blobs para triggers
+- **Function App**: 4 funciones Python
+- **Application Insights**: Telemetría serverless
+- **Service Plan**: Standard S1 (Linux)
 
-### **Test HttpTrigger**
-```powershell
-$url = terraform output -raw function_app_url
-Invoke-WebRequest -Uri "$url/api/HttpTrigger?name=POC" | Select-Object -ExpandProperty Content
-```
+## 🔗 Dependencias
 
-### **Generate Queue Messages**
-```powershell
-$storageAccount = terraform output -raw storage_account_name
-$queueName = "queue-orders"
+- **Escenario 0** (Shared Infrastructure) debe estar desplegado primero
 
-# Send test message
-$message = '{"orderId":"ORDER-1001","customer":"Test","amount":150}' | ConvertTo-Json
-az storage message put --queue-name $queueName --account-name $storageAccount --content $message
-```
+## 💰 Costo
 
-### **Upload Test File to Blob**
-```powershell
-$storageAccount = terraform output -raw storage_account_name
-$containerName = "uploads"
+**~$70/mes** - Service Plan Standard S1
 
-# Create and upload test file
-"Test content" | Out-File test.txt
-az storage blob upload --account-name $storageAccount --container-name $containerName --name test.txt --file test.txt
-```
-
----
-
-## 📊 MONITORING
-
-### **Application Insights**
-
-**Access:**
-```powershell
-# Get Application Insights name
-terraform output app_insights_name
-
-# Open in Azure Portal
-# Search for the App Insights resource
-```
-
-**Key Metrics to Watch:**
-- Function execution count
-- Average execution time
-- Success rate
-- Cold start percentage
-
-### **KQL Queries**
-
-**All Function Executions**
-```kusto
-requests
-| where cloud_RoleName contains "func-azmon"
-| summarize count() by operation_Name
-| order by count_ desc
-```
-
-**Cold Start Analysis**
-```kusto
-requests
-| where cloud_RoleName contains "func-azmon"
-| extend IsColdStart = tobool(customDimensions.isColdStart)
-| summarize 
-    Total = count(),
-    ColdStarts = countif(IsColdStart),
-    ColdStartPct = round(countif(IsColdStart) * 100.0 / count(), 2)
-```
-
-**Performance by Function**
-```kusto
-requests
-| where cloud_RoleName contains "func-azmon"
-| summarize 
-    Executions = count(),
-    AvgDuration = avg(duration),
-    P95 = percentile(duration, 95)
-    by operation_Name
-| order by P95 desc
-```
-
----
-
-## 💰 COSTS
-
-```
-Storage Account:     ~$0.50/month
-Function App (Y1):   ~$0.20/month (within free tier)
-App Insights:        $0 (shared with Scenario 1)
-────────────────────────────────────────────
-TOTAL Scenario 2:    ~$0.70/month
-
-POC Complete:        ~$13.84/month (all scenarios)
-```
-
-**Free Tier Includes:**
-- 1 million executions/month
-- 400,000 GB-s compute/month
-
----
-
-## 🎓 LEARNING OBJECTIVES
-
-### **What You'll Learn**
-
-1. **Serverless Patterns**
-   - HTTP APIs without servers
-   - Scheduled jobs (cron)
-   - Async message processing
-   - Event-driven file processing
-
-2. **Cost Optimization**
-   - Pay-per-execution vs always-on
-   - Cold start mitigation
-   - Performance tuning
-
-3. **Monitoring**
-   - Function-specific telemetry
-   - Distributed tracing
-   - Custom metrics
-   - Alert configuration
-
-4. **Comparison**
-   - App Service vs Functions
-   - When to use each
-   - Trade-offs
-
----
-
-## 🔥 CLEANUP
-
-### **Destroy All Resources**
-```powershell
-cd 02-azure-functions
-terraform destroy -auto-approve
-```
-
-**Time:** 3-5 minutes  
-**Cost after destroy:** $0
-
----
-
-## 📚 NEXT STEPS
-
-1. **Generate Traffic**
-   ```powershell
-   .\test_functions.ps1 -TestIterations 50
-   ```
-
-2. **Explore Application Insights**
-   - Live Metrics
-   - Performance dashboard
-   - Failures analysis
-
-3. **Run KQL Queries**
-   - Copy queries from this README
-   - Analyze cold starts
-   - Compare function performance
-
-4. **Proceed to Scenario 3**
-   - Container Apps (coming soon)
-
----
-
-## 📁 FILES
+## 📁 Estructura
 
 ```
 02-azure-functions/
-├── main.tf                  Terraform infrastructure
-├── variables.tf             Variables
-├── outputs.tf               Outputs
-├── terraform.tfvars         Active configuration
-├── deploy_functions.ps1     Deploy script (PowerShell)
-├── deploy_functions.sh      Deploy script (Bash)
-├── test_functions.ps1       Test script
-└── functions/              Function code
-    ├── host.json
-    ├── requirements.txt
-    ├── HttpTrigger/
-    ├── TimerTrigger/
-    ├── QueueTrigger/
-    └── BlobTrigger/
+├── main.tf                  (Infraestructura)
+├── variables.tf
+├── outputs.tf
+├── terraform.tfvars
+├── README.md               (este archivo)
+├── functions/              (Código Functions)
+│   ├── HttpTrigger/
+│   ├── TimerTrigger/
+│   ├── QueueTrigger/
+│   ├── BlobTrigger/
+│   ├── host.json
+│   └── requirements.txt
+├── scripts/                (Scripts de deployment)
+│   ├── deploy_*.ps1
+│   ├── test_functions.ps1
+│   └── ...
+└── docs/                   (Documentación)
+    ├── guías de deployment
+    ├── troubleshooting
+    └── ...
 ```
 
----
+## 🎯 Functions Incluidas
 
-## 🆘 TROUBLESHOOTING
+1. **HttpTrigger**: API REST endpoint
+2. **TimerTrigger**: Ejecución programada (cada 5 min)
+3. **QueueTrigger**: Procesa mensajes de queue
+4. **BlobTrigger**: Procesa archivos subidos
 
-**Functions not appearing after deploy:**
-- Wait 2-3 minutes for deployment to complete
-- Check `az functionapp list` to verify
+## 📝 Notas
 
-**HttpTrigger returns 503:**
-- Function App is starting (cold start)
-- Wait 30 seconds and retry
-
-**Queue messages not processing:**
-- Verify queue name in function.json matches Terraform output
-- Check function logs: `az functionapp log tail --name <name> --resource-group <rg>`
-
-**Blob trigger not firing:**
-- Ensure blob is uploaded to correct container
-- Check storage connection string in app settings
-
----
-
-## 📞 SUPPORT
-
-**Documentation:**
-- Main: `PLAN_ESCENARIO_2.md`
-- Knowledge Transfer: (to be created after testing)
-
-**Queries:**
-- See `docs/` directory for KQL query examples
-
----
-
-**Created:** 7 de enero de 2026  
-**Status:** ✅ Ready for deployment  
-**Author:** Brian Poch
+- Region: Mexico Central (misma que Escenario 0 y 1)
+- Standard S1 es necesario debido a limitaciones de quota
+- Consumption Plan (Y1) no está disponible en la suscripción actual

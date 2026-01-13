@@ -1,0 +1,62 @@
+===========================================
+  TODO LISTO - EJECUTA AHORA
+===========================================
+
+SEGURIDAD CONFIGURADA:
+----------------------
+✓ .gitignore creado
+✓ Script seguro listo
+✓ NO creara outputs.json
+✓ Credenciales solo en memoria
+
+
+EJECUTA:
+========
+
+.\DEPLOY_SECURE.ps1
+
+
+CUANDO PREGUNTE:
+================
+
+"Que deseas desplegar? (0/1/2/TODO)"
+
+Escribe: TODO
+
+
+CONFIRMACIONES:
+===============
+
+Dira "S" a:
+  - Aplicar Escenario 0? S
+  - Aplicar Escenario 1? S
+  - Aplicar Escenario 2? S
+  - Abrir Portal? S (para Functions)
+
+
+RESULTADO:
+==========
+
+Escenario 0: Log Analytics Workspace
+Escenario 1: App Service + App Insights
+Escenario 2: Functions (deployment manual)
+
+TOTAL: ~20 minutos
+
+
+ARCHIVOS CREADOS:
+=================
+
+✓ DEPLOY_SECURE.ps1          (script principal)
+✓ .gitignore                 (proteccion)
+✓ SECURITY_IMPROVEMENTS.md   (documentacion)
+✓ EJECUTA_DEPLOYMENT.txt     (guia rapida)
+
+
+EJECUTA AHORA:
+==============
+
+.\DEPLOY_SECURE.ps1
+
+
+===========================================

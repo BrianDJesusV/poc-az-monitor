@@ -1,0 +1,85 @@
+===========================================
+  DEPLOYMENT SEGURO - EJECUCION
+===========================================
+
+CONFIGURACION DE SEGURIDAD APLICADA:
+-------------------------------------
+✓ .gitignore configurado (previene exposicion)
+✓ NO crea outputs.json (credenciales seguras)
+✓ Credenciales solo en memoria
+✓ ZIPs excluidos de Git
+
+
+EJECUTA ESTE COMANDO:
+=====================
+
+cd C:\Users\User\Documents\proyectos\proyectos_trabajo\azure\poc_azure_monitor
+
+.\DEPLOY_SECURE.ps1
+
+
+OPCIONES DISPONIBLES:
+=====================
+
+Cuando te pregunte "Que deseas desplegar?":
+
+  0     = Solo Shared Infrastructure (LAW)
+  1     = Solo App Service
+  2     = Solo Functions
+  TODO  = Todos los escenarios
+
+
+RECOMENDACION:
+==============
+
+Escribe: TODO
+
+Para desplegar todo el POC completo
+
+
+CONFIRMACIONES:
+===============
+
+El script pedira confirmacion antes de:
+  - Aplicar Escenario 0 (S/N)
+  - Aplicar Escenario 1 (S/N)
+  - Aplicar Escenario 2 (S/N)
+  - Abrir Portal para Functions (S/N)
+
+
+TIEMPO ESTIMADO:
+================
+
+Escenario 0:  3-5 minutos
+Escenario 1:  5-7 minutos
+Escenario 2:  5-7 minutos (infraestructura)
+              + 2-3 minutos (deployment manual)
+              ──────────────────────────────
+TOTAL:        15-22 minutos
+
+
+IMPORTANTE SEGURIDAD:
+=====================
+
+✓ NO se crearan archivos outputs.json
+✓ NO se crearan archivos outputs.txt
+✓ tfplan se borra despues de apply
+✓ ZIPs no se suben a GitHub
+
+SIEMPRE verifica antes de commit:
+  git status
+  
+NO debe aparecer:
+  X outputs.json
+  X outputs.txt
+  X *.tfstate
+  X *.zip
+
+
+EJECUTA AHORA:
+==============
+
+.\DEPLOY_SECURE.ps1
+
+
+===========================================
